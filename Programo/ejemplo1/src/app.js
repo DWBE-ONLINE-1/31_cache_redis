@@ -11,53 +11,57 @@ const REDIS_SERVER = process.env.REDIS_SERVER || "localhost";
 const redisClient = redis.createClient(`redis://${REDIS_SERVER}:${REDIS_PORT}`);
 
 app.get("/", (req, res) => {
-    res.send("Hello World!");
+  res.send("Hello World!");
 });
 
 // Cache middleware
 function repositoriesNumberRedisCache(req, res, next) {
-    const { username } = req.params;
+  const { username } = req.params;
 
-    redisClient.get(username, (err, data) => {
-        if (err) throw err;
+  redisClient.get(username, (err, data) => {
+    if (err) throw err;
 
-        if (data) {
-            res.status(200).json({
-                username: username,
-                repos: data,
-            });
-        } else {
-            next();
-        }
-    });
+    if (data) {
+      res.status(200).json(JSON.parse(data));
+    } else {
+      next();
+    }
+  });
 }
 
 // Make request to Github for data
 async function getGitHubRepositoriesNumber(req, res, next) {
-    try {
-        console.info("Fetching data from Github...");
+  try {
+    console.info("Fetching data from Github...");
 
-        const { username } = req.params;
-        const gitHubResponse = await fetch(`https://api.github.com/users/${username}`);
-        const data = await gitHubResponse.json();
-        const repositoriesNumber = data.public_repos;
+    const { username } = req.params;
+    const gitHubResponse = await fetch(
+      `https://api.github.com/users/${username}`
+    );
+    const data = await gitHubResponse.json();
+    // const repositoriesNumber = data.public_repos;
+    const userInfo = JSON.stringify(data);
 
-        // Set data to Redis
-        // redisClient.setex(username, repositoriesNumber);
-        redisClient.setex(username, 60, repositoriesNumber);
+    // Set data to Redis
+    // redisClient.setex(username, repositoriesNumber);
+    redisClient.setex(username, 60, userInfo);
 
-        res.status(200).json({
-            username: username,
-            repositoriesNumber: repositoriesNumber,
-        });
-    } catch (err) {
-        console.error(err);
-        res.status(500);
-    }
+    res.status(200).json({
+      username: username,
+      repositoriesNumber: data,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500);
+  }
 }
 
-app.get("/github/:username", repositoriesNumberRedisCache, getGitHubRepositoriesNumber);
+app.get(
+  "/github/:username",
+  repositoriesNumberRedisCache,
+  getGitHubRepositoriesNumber
+);
 
 app.listen(PORT, () => {
-    console.info(`Example app listening at http://localhost:${PORT}`);
+  console.info(`Example app listening at http://localhost:${PORT}`);
 });
