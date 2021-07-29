@@ -1,0 +1,28 @@
+{
+  "name": "31_cache_redis",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "ejem1": "nodemon Programo/ejemplo1/src/app.js",
+    "ejem2": "nodemon Programo/ejemplo2/src/app2.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DWBE-ONLINE-1/31_cache_redis.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/DWBE-ONLINE-1/31_cache_redis/issues"
+  },
+  "homepage": "https://github.com/DWBE-ONLINE-1/31_cache_redis#readme",
+  "dependencies": {
+    "api-benchmark": "^1.0.1",
+    "express": "^4.17.1",
+    "node-fetch": "^2.6.1",
+    "nodemon": "^2.0.12",
+    "redis": "^3.1.2"
+  }
+}
